@@ -12,6 +12,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    if (argc < 2) {
+        fprintf(stderr, "Usage: eye FILENAME\n");
+        exit(2);
+    }
+//    char *filename = argv
+
     // const SDL_VideoInfo *info = SDL_GetVideoInfo();
 
     // int display_x = info->current_w;
@@ -44,6 +50,12 @@ int main(int argc, char *argv[])
     }
 
     SDL_Texture* imgTexture = IMG_LoadTexture(renderer, filename);
+    Uint32 format;
+    int access, w, h;
+
+    SDL_QueryTexture(imgTexture, &format, &access, &w, &h);
+
+    printf("Loaded image is %dx%d\n", w, h);
 
     if ( imgTexture == NULL ) {
         fprintf(stderr, "Failed to load image as texture\n");
