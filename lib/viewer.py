@@ -212,7 +212,10 @@ class Viewer(object):
                         self.move_up()
                     if event.key.keysym.sym == sdl2.SDLK_j:
                         self.move_down()
-
+                if event.type == SDL_MOUSEBUTTONDOWN:
+                    if event.button.button == SDL_BUTTON_LEFT:
+                        print("x: {}, y: {}".format(event.button.x,
+                            event.button.y))
 
         SDL_DestroyWindow(window)
         SDL_Quit()
