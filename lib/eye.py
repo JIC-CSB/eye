@@ -1,7 +1,6 @@
-"""Iamge viewer"""
+"""Image viewer"""
 
 import argparse
-
 import pygame
 
 def display_image(filename):

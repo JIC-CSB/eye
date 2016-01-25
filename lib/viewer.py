@@ -1,4 +1,4 @@
-"""Simple viewer for images in a director."""
+"""Simple viewer for images in a directory."""
 import os
 import os.path
 import argparse
@@ -50,7 +50,8 @@ class ImageContainer(list):
 class View(object):
     def __init__(self):
         self._zoom_level = 0
-        self._sizes = [(500, 500), (400, 400), (300, 300), (100, 100)]
+        self._sizes = [(2048, 2048), (1024, 1024), (512, 512)]
+#       self._sizes = [(500, 500), (400, 400), (300, 300), (100, 100)]
         self._x = 0
         self._y = 0
 
@@ -58,14 +59,33 @@ class View(object):
         """Return the current location and zoom."""
         return self._x, self._y, self._sizes[self._zoom_level]
 
-    def _zoom_center(self, org_size, new_size):
-        """Center view after zoom."""
+    def _offset(self, org_size, new_size):
+        """Return the zoom offset."""
         org_w, org_h = org_size
         new_w, new_h = new_size
         offset_w = (org_w - new_w) // 2
         offset_h = (org_h - new_h) // 2
+        return offset_w, offset_h
+
+    def _zoom_center(self, org_size, new_size):
+        """Center view after zoom."""
+        offset_w, offset_h = self._offset(org_size, new_size)
         self._x = self._x + offset_w
         self._y = self._y + offset_h
+        if self._x < 0:
+            self._x = 0
+        if self._y < 0:
+            self._y = 0
+    
+    def image_coordinate(self, wx, wy):
+        """Return coordinate in image space."""
+        mod_factor = self._zoom_level * 2
+        if mod_factor == 0:
+            return self._x + wx, self._y + wy
+        ix = wx // mod_factor
+        iy = wy // mod_factor
+        
+        return self._x + ix, self._y + iy
 
     def zoom_in(self):
         """Zoom in on center of view."""
@@ -96,7 +116,7 @@ class View(object):
         """Shift view some steps to the right."""
         self._x += step
         zoom_width = self._sizes[self._zoom_level][0]
-        move_span = 500 - zoom_width
+        move_span = 2048 - zoom_width
         if self._x > move_span:
             self._x = move_span
 
@@ -110,7 +130,7 @@ class View(object):
         """Shift view some steps down."""
         self._y += step
         zoom_height = self._sizes[self._zoom_level][1]
-        move_span = 500 - zoom_height
+        move_span = 2048 - zoom_height
         if self._y > move_span:
             self._y = move_span
 
@@ -123,11 +143,11 @@ class Viewer(object):
         SDL_Init(SDL_INIT_VIDEO)
         self.window = SDL_CreateWindow(b"Image Viewer",
                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                              500, 500, SDL_WINDOW_SHOWN)
+                              2048, 2048, SDL_WINDOW_SHOWN)
 
         self.renderer = SDL_CreateRenderer(self.window, -1, 0)
-        self.display_rect = SDL_Rect(0, 0, 500, 500)
-        self.zoom_rect = SDL_Rect(0, 0, 500, 500)
+        self.display_rect = SDL_Rect(0, 0, 2048, 2048)
+        self.zoom_rect = SDL_Rect(0, 0, 2048, 2048)
         self.update_image()
         self.run()
 
@@ -214,8 +234,9 @@ class Viewer(object):
                         self.move_down()
                 if event.type == SDL_MOUSEBUTTONDOWN:
                     if event.button.button == SDL_BUTTON_LEFT:
-                        print("x: {}, y: {}".format(event.button.x,
-                            event.button.y))
+                        ix, iy = self._view.image_coordinate(event.button.x, event.button.y)
+                        print("x: {}, y: {}".format(ix, iy))
+
 
         SDL_DestroyWindow(window)
         SDL_Quit()
