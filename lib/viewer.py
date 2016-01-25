@@ -77,13 +77,11 @@ class View(object):
         """Return coordinat in image space."""
         mod_factor = self._zoom_level * 2
         if mod_factor == 0:
-            return wx, wy
-        org_size = self._sizes[0]
-        new_size = self._sizes[self._zoom_level]
-        offset_w, offset_h = self._offset(org_size, new_size)
+            return self._x + wx, self._y + wy
         ix = wx // mod_factor
         iy = wy // mod_factor
-        return ix + offset_w, iy + offset_h
+        
+        return self._x + ix, self._y + iy
 
     def zoom_in(self):
         """Zoom in on center of view."""
