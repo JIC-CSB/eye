@@ -1,4 +1,4 @@
-"""Simple viewer for images in a director."""
+"""Simple viewer for images in a directory."""
 import os
 import os.path
 import argparse
@@ -51,7 +51,7 @@ class View(object):
     def __init__(self):
         self._zoom_level = 0
         self._sizes = [(2048, 2048), (1024, 1024), (512, 512)]
-#        self._sizes = [(500, 500), (400, 400), (300, 300), (100, 100)]
+#       self._sizes = [(500, 500), (400, 400), (300, 300), (100, 100)]
         self._x = 0
         self._y = 0
 
@@ -72,9 +72,13 @@ class View(object):
         offset_w, offset_h = self._offset(org_size, new_size)
         self._x = self._x + offset_w
         self._y = self._y + offset_h
+        if self._x < 0:
+            self._x = 0
+        if self._y < 0:
+            self._y = 0
     
     def image_coordinate(self, wx, wy):
-        """Return coordinat in image space."""
+        """Return coordinate in image space."""
         mod_factor = self._zoom_level * 2
         if mod_factor == 0:
             return self._x + wx, self._y + wy
